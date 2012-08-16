@@ -5,7 +5,7 @@ from distutils.core import setup
 
 setup(
     name='django-pgfields',
-    version=".".join(map(str, __import__('pgfields').__version__)),
+    version='0.0.1',
     author="Mike O'Malley",
     author_email='mikeo@outriggermedia.com',
     description='Postgres-specific db fields for django',
@@ -22,11 +22,10 @@ setup(
         "Development Status :: 2 - Pre-Alpha",
         "Framework :: Django",
         "Intended Audience :: Developers",
-        "Intended Audience :: System Administrators",
         "Operating System :: OS Independent",
         "Topic :: Software Development",
         "Environment :: Web Environment",
-        "License :: OSI Approved :: MIT License",
+        #"License :: OSI Approved :: MIT License",
         "Programming Language :: Python",
     ],
 )
