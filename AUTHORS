@@ -1,0 +1,7 @@
+Authors:
+
+	* Mike O'Malley
+
+
+Special thanks to Jordan McCoy, the original author of django-hstore, which was
+borrowed from _heavily_ in creating pgfields.hstore
