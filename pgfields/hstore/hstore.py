@@ -1,12 +1,16 @@
 from django.db import models
 
-from psycopg2.extras import register_hstore
-
+from pgfields.utils import register_initializer
 from pgfields.hstore import forms
 from pgfields.hstore.query import HStoreQuerySet
 from pgfields.hstore.util import acquire_reference, serialize_references, unserialize_references
 
-hstore_type_registered = False
+
+def init_hstore(sender, **kwargs):
+    from django.db import connection
+    from psycopg2.extras import register_hstore
+    register_hstore(connection.connection)
+register_initializer(init_hstore)
 
 class HStoreDictionary(dict):
     """A dictionary subclass which implements hstore support."""
@@ -38,17 +42,8 @@ class HStoreDescriptor(object):
         instance.__dict__[self.field.name] = value
 
 class HStoreField(models.Field):
-
     _attribute_class = HStoreDictionary
     _descriptor_class = HStoreDescriptor
-
-    def get_prep_value(self, value):
-        global hstore_type_registered
-        if not hstore_type_registered:
-            from django.db import connection
-            register_hstore(connection.connection)
-            hstore_type_registered = True
-        return super(HStoreField, self).get_prep_value(value)
 
     def contribute_to_class(self, cls, name):
         super(HStoreField, self).contribute_to_class(cls, name)

@@ -1,8 +1,9 @@
-from arrays import *
+from pgfields.arrays import *
+from pgfields.basic import *
 from pgfields.hstore import *
-try:
-    from south.modelsinspector import add_introspection_rules
-    add_introspection_rules(rules=[], patterns=['pgfields\.hstore\.hstore'])
-    add_introspection_rules(rules=[], patterns=['pgfields\.arrays'])
-except ImportError:
-    pass
+
+from pgfields.utils import addrule
+addrule([], ['pgfields\.hstore\.hstore'])
+addrule([], ['pgfields\.arrays'])
+addrule([], ['pgfields\.basic'])
+
