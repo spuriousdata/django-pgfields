@@ -24,8 +24,7 @@ class ArrayField(models.Field):
         Convert python type to sql
         """
         if isinstance(value, list):
-            dbval = self.stringify(value)
-            return "'{%s}'" % dbval
+            return value
         elif isinstance(value, (str, unicode)):
             if not value:
                 return None
@@ -46,10 +45,10 @@ class ArrayField(models.Field):
 class CharArrayField(ArrayField):
     description = "PostgreSQL char[]"
     field_type = "char"
-    subtype = str
+    subtype = unicode
 
     def stringify(self, value):
-        quoted = [str(adapt(x).getquoted()) for x in value]
+        quoted = [adapt(x.encode('utf8')).getquoted() for x in value]
         return ",".join(quoted)
 
 class VarcharArrayField(CharArrayField):
