@@ -9,9 +9,7 @@ class View(object):
 
     @classmethod
     def viewname(cls):
-        if hasattr(cls, 'viewname'):
-            return cls.viewname
-        module = cls.__module__.lower().replace('models.', '').replace('.','')
+        module = cls.__module__.lower().replace('models', '').replace('.','')
         view = cls.__name__.lower()
         return "%s_%s" % (module, view)
 
@@ -20,14 +18,23 @@ class View(object):
         if not hasattr(cls, 'sql'):
             raise ImproperlyConfigured, "View classes require View.sql to be defined"
 
-        return ("CREATE VIEW %s AS %s", (View.viewname(), cls.sql))
+        return ("CREATE VIEW %s AS %s" % (cls.viewname(), cls.sql), ())
 
-    @staticmethod
-    def create_check():
-        return ("SELECT EXISTS(SELECT %s FROM pg_??", "")
+    @classmethod
+    def create_check(cls):
+        return ("SELECT EXISTS(SELECT viewname FROM pg_views WHERE viewname='%s')" % cls.viewname(),())
 
 class MatView(View):
     # Idea and sql from http://tech.jonathangardner.net/wiki/PostgreSQL/Materialized_Views
+
+    @classmethod
+    def tablename(cls):
+        return super(MatView, cls).viewname()
+
+    @classmethod
+    def viewname(cls):
+        return super(MatView, cls).viewname() + "_view"
+
     @staticmethod
     def storedproc_sql():
         sql = []
@@ -45,9 +52,9 @@ class MatView(View):
         DECLARE
             matview ALIAS FOR $1;
             view_name ALIAS FOR $2;
-            entry pgfields_matviews%ROWTYPE;
+            entry pgfields_matviews%%ROWTYPE;
         BEGIN
-            SELECT * INTO entry FROM pgfields_matviews WHERE mv_name = matview;
+            SELECT * INTO entry FROM pgfields_matviews WHERE matview_name = matview;
 
             IF FOUND THEN
                 RAISE EXCEPTION ''MatView %% already exists.'', matview;
@@ -79,8 +86,8 @@ class MatView(View):
         RETURNS VOID
         LANGUAGE plpgsql AS '
         DECLARE
-            matview ALIAS FOR $1
-            entry pgfields_matviews%ROWTYPE;
+            matview ALIAS FOR $1;
+            entry pgfields_matviews%%ROWTYPE;
         BEGIN
             SELECT * INTO entry FROM pgfields_matviews WHERE matview_name = matview;
             IF NOT FOUND THEN
@@ -99,13 +106,13 @@ class MatView(View):
         RETURNS VOID
         LANGUAGE plpgsql AS '
         DECLARE
-            matview ALIAS FOR $1
-            entry pgfields_matviews%ROWTYPE;
+            matview ALIAS FOR $1;
+            entry pgfields_matviews%%ROWTYPE;
         BEGIN
             SELECT * INTO entry FROM pgfields_matviews WHERE matview_name = matview;
 
             IF NOT FOUND THEN
-                RAISE EXCEPTION MatView %% does not exist.'', matview;
+                RAISE EXCEPTION ''MatView %% does not exist.'', matview;
             END IF;
 
             EXECUTE ''DELETE FROM '' || matview;
@@ -131,7 +138,5 @@ class MatView(View):
 
     @classmethod
     def create_matview(cls):
-        if not hasattr(cls, 'name') or not hasattr(cls, 'view'):
-            raise ImproperlyConfigured, "MatView classes require MatView.name and MatView.view to be defined"
-        return ("SELECT pgfields_create_matview(%s, %s)", MatView.name, MatView.view)
+        return ("SELECT pgfields_create_matview(%s, %s)", (cls.tablename(), cls.viewname()))
 
