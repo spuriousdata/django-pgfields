@@ -6,7 +6,12 @@ from pgfields.viewtables import View, MatView
 @transaction.autocommit
 def create_views(sender, **kwargs):
     cursor = connection.cursor()
-    for model in models.get_models(kwargs['app']):
+    app = kwargs['app']
+    if type(app) == str:
+        import sys
+        app = getattr(sys.modules[app], 'models')
+    import pdb; pdb.set_trace()
+    for model in models.get_models(app):
         if issubclass(model, View):
             # Check if view exists
             sql = model.create_check()
@@ -35,3 +40,8 @@ def create_views(sender, **kwargs):
                         raise
 
 signals.post_syncdb.connect(create_views)
+try:
+    from south.signals import post_migrate
+    post_migrate.connect(create_views)
+except ImportError:
+    pass
