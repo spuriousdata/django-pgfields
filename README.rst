@@ -18,6 +18,7 @@ Usage
 Field Types
 ###########
 For all field types, simply:
+::
     import pgfields
 
     class Student(models.Model):
@@ -31,7 +32,7 @@ View Types
 ###########
 In order to utilize the View and MatView model mixins, you'll have to add
 'pgfields' to INSTALLED_APPS. Then you can define your view this way:
-
+::
     import pgfields
 
     class MyView(models.Model, pgfields.View):
