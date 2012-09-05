@@ -3,14 +3,13 @@ from django.db.models import signals
 from django.db.utils import DatabaseError
 from pgfields.viewtables import View, MatView
 
-@transaction.autocommit
+@transaction.commit_manually()
 def create_views(sender, **kwargs):
     cursor = connection.cursor()
     app = kwargs['app']
     if type(app) == str:
         import sys
         app = getattr(sys.modules[app], 'models')
-    import pdb; pdb.set_trace()
     for model in models.get_models(app):
         if issubclass(model, View):
             # Check if view exists
@@ -33,8 +32,10 @@ def create_views(sender, **kwargs):
                 func = model.create_matview()
                 try:
                     cursor.execute(*func)
+                    transaction.commit()
                 except DatabaseError as e:
                     if e.message.startswith('MatView') and e.message.find('already exists') != -1:
+                        transaction.rollback()
                         pass
                     else:
                         raise
