@@ -9,7 +9,7 @@ from pgfields.hstore.util import acquire_reference, serialize_references, unseri
 def init_hstore(sender, **kwargs):
     from django.db import connection
     from psycopg2.extras import register_hstore
-    register_hstore(connection.connection)
+    register_hstore(connection.connection, unicode=True)
 register_initializer(init_hstore)
 
 class HStoreDictionary(dict):
