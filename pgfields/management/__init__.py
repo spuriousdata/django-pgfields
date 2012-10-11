@@ -36,7 +36,6 @@ def create_views(sender, **kwargs):
                 except DatabaseError as e:
                     if e.message.startswith('MatView') and e.message.find('already exists') != -1:
                         transaction.rollback()
-                        pass
                     else:
                         raise
 

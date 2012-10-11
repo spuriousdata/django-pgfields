@@ -16,6 +16,7 @@ class HStoreDictionary(dict):
     """A dictionary subclass which implements hstore support."""
 
     def __init__(self, value=None, field=None, instance=None, **params):
+        value = {} if value is None else value
         super(HStoreDictionary, self).__init__(value, **params)
         self.field = field
         self.instance = instance

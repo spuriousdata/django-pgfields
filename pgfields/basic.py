@@ -72,10 +72,14 @@ class UUIDField(models.Field):
         super(UUIDField, self).__init__(*args, **kwargs)
 
     def get_prep_value(self, value):
+        if getattr(self, 'value', None) is not None:
+            return str(self.value)
         if value == '':
             value = getattr(uuid, "uuid%d" % self.uuid_version)()
-            print "returned VALUE %s" % value
-        return str(value)
+        if type(value) == str and value.find('-') == -1:
+            value = uuid.UUID(value)
+        self.value = value
+        return str(self.value)
 
     def to_python(self, value):
         return str(value)
@@ -83,4 +87,4 @@ class UUIDField(models.Field):
     def db_type(self, connection):
         return 'UUID'
 
-addrule([], ['^pgfields\.basic\.EnumField'])
+addrule([], ['^pgfields\.basic\.UUIDField'])
