@@ -1,6 +1,3 @@
-from distribute_setup import use_setuptools
-use_setuptools('0.6.24')
-
 from distutils.core import setup
 
 setup(
@@ -12,7 +9,7 @@ setup(
     long_description=open('README.rst').read(),
     license='LICENSE',
     url='http://github.com/spuriousdata/django-pgfields',
-    packages=['pgfields'],
+    packages=['pgfields', 'pgfields.hstore', 'pgfields.management'],
     include_package_data=True,
     install_requires=[
         'Django >= 1.4.0',
