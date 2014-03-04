@@ -84,4 +84,14 @@ class UUIDField(models.Field):
     def db_type(self, connection):
         return 'UUID'
 
+    def pre_save(self, model_instance, add):
+        value = super(UUIDField, self).pre_save(model_instance, add)
+        if not value:
+            value = self.get_prep_value('')
+            setattr(model_instance, self.attname, value)
+            if self.primary_key:
+                setattr(model_instance, 'pk', value)
+        return value
+
+
 addrule([], ['^pgfields\.basic\.UUIDField'])
