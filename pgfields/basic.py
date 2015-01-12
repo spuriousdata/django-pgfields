@@ -40,6 +40,17 @@ class EnumField(models.Field):
             pass
         _typesql[self.type_name] = self.create_type()
         super(EnumField, self).__init__(*args, **kwargs)
+        
+    def deconstruct(self):
+        name, path, args, kwargs = super(EnumField, self).deconstruct()
+        kwargs['enumeration'] = self.enumeration
+        kwargs['type_name'] = self.type_name
+        del kwargs['choices']
+        try:
+            del kwargs['default']
+        except KeyError:
+            pass
+        return name, path, args, kwargs
 
     def db_type(self, connection):
         return self.type_name
@@ -63,13 +74,20 @@ addrule([
 class UUIDField(models.Field):
     description = "PostgreSQL UUID type"
     __metaclass__ = models.SubfieldBase
+    __uuid_version_default = 4
 
     def __init__(self, *args, **kwargs):
-        self.uuid_version = kwargs.pop('uuid_version', 4)
+        self.uuid_version = kwargs.pop('uuid_version', UUIDField.__uuid_version_default)
         # GAH! Can't do this, django caches the default value as a static
         # string
         #kwargs['default'] = getattr(uuid, "uuid%d" % self.uuid_version)()
         super(UUIDField, self).__init__(*args, **kwargs)
+        
+    def deconstruct(self):
+        name, path, args, kwargs = super(UUIDField, self).deconstruct()
+        if self.uuid_version != UUIDField.__uuid_version_default:
+            kwargs['uuid_version'] = self.uuid_version
+        return name, path, args, kwargs
 
     def get_prep_value(self, value):
         if value == '':
