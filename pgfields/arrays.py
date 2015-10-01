@@ -9,9 +9,6 @@ class ArrayField(models.Field):
     subtype = type(None)
     __metaclass__ = models.SubfieldBase
 
-    def __init__(self, *args, **kwargs):
-        super(ArrayField, self).__init__(*args, **kwargs)
-
     def stringify(self, value):
         raise NotImplemented, "Must be overridden by subclass"
 

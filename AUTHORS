@@ -1,6 +1,7 @@
 Authors:
 
 	* Mike O'Malley
+	* Jannis Leidel (jezdez)
 
 
 Special thanks to Jordan McCoy, the original author of django-hstore, which was
