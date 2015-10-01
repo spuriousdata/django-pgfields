@@ -18,7 +18,7 @@ except AttributeError:
             return f(*args, **kwargs)
         return wrapper
 
-@ac()
+@ac
 def init_enums(sender, **kwargs):
     cursor = connection.cursor()
     for name, sql in _typesql.items():
