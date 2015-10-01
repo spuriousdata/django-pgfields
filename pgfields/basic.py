@@ -8,7 +8,17 @@ from django.db import models
 from pgfields.utils import addrule, register_initializer
 
 from django.db import connection, transaction
-@transaction.autocommit()
+try:
+    ac = transaction.autocommit
+except AttributeError:
+    from functools import wraps
+    def ac(f):
+        @wraps(f)
+        def wrapper(*args, **kwargs):
+            return f(*args, **kwargs)
+        return wrapper
+
+@ac()
 def init_enums(sender, **kwargs):
     cursor = connection.cursor()
     for name, sql in _typesql.items():
